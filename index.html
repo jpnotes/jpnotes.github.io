@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Notes</title>
+    <meta charset="utf-8">
+    <meta name="description" content="Josh's radiography notes" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/select2.min.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="icon" type="image/x-icon" href="img/favicon.ico" />
+</head>
+<body>
+	<nav class="navbar navbar-default" role="navigation">
+	  <div class="container">
+	    <div class="navbar-header">
+		  <form class="navbar-form" style="display: inline-flex; align-items: center;">
+	        <span style="font-weight: bold; font-size: 150%; margin-right: 2ex;"> &#x1f4a9;</span>
+	        <select id="q" class="js-states form-control">
+	        	<!-- <option val=""> </option> -->
+	        </select>
+	      </form>
+	    </div>
+	  </div>
+	</nav>
+
+	<div id="art" style="display: none;">
+	</div>
+
+    <script src="js/jquery-1.min.js"></script>
+    <script src="js/bootstrap-3.3.min.js"></script><!-- no deps -->
+    <script src="js/select2.full.min.js"></script><!-- req jquery >=1.7.1 -->
+    <script src="js/articles.js"></script><!-- the actual content -->
+    <script type="text/javascript">
+		$(document).ready(function() {
+			// set up document with articles that came in as JSON
+			$('#art').html(protocolsJSON); // from articles.js
+			$('#art article').css('display', 'none');
+			$('#art').css('display', '');
+
+			// now pull structured data back out and into a big global array
+			articles = [];
+			$('#art article').each(function () {
+				var art_id = $(this).attr("id");
+				var title = $("h2:first", this).text();
+				var headings = $("h2,h3", this)
+					.map(function () { return $(this).text() })
+					.get()
+					.join(' ');
+				var synonyms = $("*[synonyms]", this)
+					.map(function () { return $(this).attr('synonyms') })
+					.get()
+					.join(' ');
+				var art = {
+					'id': art_id,
+					'text': title,
+					'full': ($(this).text() +' '+ synonyms).toLowerCase()
+				}
+				articles.push(art);
+			});
+
+			// populate Search2 dropdown with protocol titles
+			$('#q').select2({
+				placeholder: "Search",
+				data: articles,
+				// escapeMarkup: function (markup) { return markup; },
+				// minimumInputLength: 2,
+				matcher: function (q, art) {
+					try {
+						if (q.term == '') return art; // return all options on blank
+						var terms = q.term.split(/W+/);
+					} catch (e) {
+						return art;
+					}
+
+					for (var i = 0; i < terms.length; i++) {
+						return (art.full.indexOf(terms[i]) != -1) ? art : null;
+					}
+				}
+			});
+
+			// handle the Select2 change event
+			$('#q').on('change', function (evt) {
+				try {
+					var id = evt.target.value;
+					$('#art article').css('display', 'none');
+					$('#art article[id="'+ id +'"]').css('display', '');
+				} catch (e) {
+					return;
+				}
+			});
+
+			$('#q').on('select2:open', function () {
+				$('.select2-search__field').on('input', function (evt) {
+					searchTerm = $(this).val();
+				});
+			})
+
+			// display something! anything!
+			$('#art article:first').css('display', '');
+		}); // document ready
+
+	</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+.navbar-form { margin-top: auto; margin-bottom: auto; }
+
+@media(min-width:768px) {
+	.navbar-header { float: none; }
+	.navbar-form {
+		margin-top: auto;
+		margin-bottom: auto;
+		padding: 10px 15px;
+	}
+}
