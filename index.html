@@ -80,15 +80,18 @@
 			});
 
 			// handle the Select2 change event
-			$('#q').on('change', function (evt) {
-				try {
-					var id = evt.target.value;
-					$('#art article').css('display', 'none');
-					$('#art article[id="'+ id +'"]').css('display', '');
-				} catch (e) {
-					return;
-				}
+			$('#q').on('select2:open', function (evt) {
+				$('.select2-search__field').on('input', function (evt_in) {
+					try {
+						var id = evt_in.target.value;
+						$('#art article').css('display', 'none');
+						$('#art article[id="'+ id +'"]').css('display', '');
+					} catch (e) {
+						return;
+					}
+				});
 			});
+
 
 			/* add highlighting
 
